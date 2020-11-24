@@ -13,6 +13,1080 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/wwi_dimtransactiontype_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asadatalake01",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "wwi-dimtransactiontype.csv",
+						"folderPath": "bronze",
+						"fileSystem": "dev"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": ""
+				},
+				"schema": [
+					{
+						"name": "Transaction Type Key",
+						"type": "String"
+					},
+					{
+						"name": "WWI Transaction Type ID",
+						"type": "String"
+					},
+					{
+						"name": "Transaction Type",
+						"type": "String"
+					},
+					{
+						"name": "Valid From",
+						"type": "String"
+					},
+					{
+						"name": "Valid To",
+						"type": "String"
+					},
+					{
+						"name": "Lineage Key",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_dimtransactiontype_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "TransactionTypeKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWITransactionTypeID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TransactionType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "ValidTo",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi",
+					"table": "DimTransactionType"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factmovement_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asadatalake01",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "wwi-factmovement.csv",
+						"folderPath": "bronze",
+						"fileSystem": "dev"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": ""
+				},
+				"schema": [
+					{
+						"name": "Movement Key",
+						"type": "String"
+					},
+					{
+						"name": "Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Stock Item Key",
+						"type": "String"
+					},
+					{
+						"name": "Customer Key",
+						"type": "String"
+					},
+					{
+						"name": "Supplier Key",
+						"type": "String"
+					},
+					{
+						"name": "Transaction Type Key",
+						"type": "String"
+					},
+					{
+						"name": "WWI Stock Item Transaction ID",
+						"type": "String"
+					},
+					{
+						"name": "WWI Invoice ID",
+						"type": "String"
+					},
+					{
+						"name": "WWI Purchase Order ID",
+						"type": "String"
+					},
+					{
+						"name": "Quantity",
+						"type": "String"
+					},
+					{
+						"name": "Lineage Key",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factmovement_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "MovementKey",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "DateKey",
+						"type": "date"
+					},
+					{
+						"name": "StockItemKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "SupplierKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TransactionTypeKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIStockItemTransactionID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIInvoiceID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIPurchaseOrderID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Quantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi",
+					"table": "FactMovement"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factorder_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asadatalake01",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "wwi-factorder.csv",
+						"folderPath": "bronze",
+						"fileSystem": "dev"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": ""
+				},
+				"schema": [
+					{
+						"name": "Order Key",
+						"type": "String"
+					},
+					{
+						"name": "City Key",
+						"type": "String"
+					},
+					{
+						"name": "Customer Key",
+						"type": "String"
+					},
+					{
+						"name": "Stock Item Key",
+						"type": "String"
+					},
+					{
+						"name": "Order Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Picked Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Salesperson Key",
+						"type": "String"
+					},
+					{
+						"name": "Picker Key",
+						"type": "String"
+					},
+					{
+						"name": "WWI Order ID",
+						"type": "String"
+					},
+					{
+						"name": "WWI Backorder ID",
+						"type": "String"
+					},
+					{
+						"name": "Description",
+						"type": "String"
+					},
+					{
+						"name": "Package",
+						"type": "String"
+					},
+					{
+						"name": "Quantity",
+						"type": "String"
+					},
+					{
+						"name": "Unit Price",
+						"type": "String"
+					},
+					{
+						"name": "Tax Rate",
+						"type": "String"
+					},
+					{
+						"name": "Total Excluding Tax",
+						"type": "String"
+					},
+					{
+						"name": "Tax Amount",
+						"type": "String"
+					},
+					{
+						"name": "Total Including Tax",
+						"type": "String"
+					},
+					{
+						"name": "Lineage Key",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factorder_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "OrderKey",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "CityKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "StockItemKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "OrderDateKey",
+						"type": "date"
+					},
+					{
+						"name": "PickedDateKey",
+						"type": "date"
+					},
+					{
+						"name": "SalespersonKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "PickerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIOrderID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIBackorderID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Description",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Package",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Quantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "UnitPrice",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxRate",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "TotalExcludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxAmount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalIncludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi",
+					"table": "FactOrder"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factpurchase_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asadatalake01",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "wwi-factpurchase.csv",
+						"folderPath": "bronze",
+						"fileSystem": "dev"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": ""
+				},
+				"schema": [
+					{
+						"name": "Purchase Key",
+						"type": "String"
+					},
+					{
+						"name": "Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Supplier Key",
+						"type": "String"
+					},
+					{
+						"name": "Stock Item Key",
+						"type": "String"
+					},
+					{
+						"name": "WWI Purchase Order ID",
+						"type": "String"
+					},
+					{
+						"name": "Ordered Outers",
+						"type": "String"
+					},
+					{
+						"name": "Ordered Quantity",
+						"type": "String"
+					},
+					{
+						"name": "Received Outers",
+						"type": "String"
+					},
+					{
+						"name": "Package",
+						"type": "String"
+					},
+					{
+						"name": "Is Order Finalized",
+						"type": "String"
+					},
+					{
+						"name": "Lineage Key",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factpurchase_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "PurchaseKey",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "DateKey",
+						"type": "date"
+					},
+					{
+						"name": "SupplierKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "StockItemKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIPurchaseOrderID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "OrderedOuters",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "OrderedQuantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "ReceivedOuters",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Package",
+						"type": "nvarchar"
+					},
+					{
+						"name": "IsOrderFinalized",
+						"type": "bit"
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi",
+					"table": "FactPurchase"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factsale_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asadatalake01",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "wwi-factsale.csv",
+						"folderPath": "bronze",
+						"fileSystem": "dev"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": ""
+				},
+				"schema": [
+					{
+						"name": "Sale Key",
+						"type": "String"
+					},
+					{
+						"name": "City Key",
+						"type": "String"
+					},
+					{
+						"name": "Customer Key",
+						"type": "String"
+					},
+					{
+						"name": "Bill To Customer Key",
+						"type": "String"
+					},
+					{
+						"name": "Stock Item Key",
+						"type": "String"
+					},
+					{
+						"name": "Invoice Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Delivery Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Salesperson Key",
+						"type": "String"
+					},
+					{
+						"name": "WWI Invoice ID",
+						"type": "String"
+					},
+					{
+						"name": "Description",
+						"type": "String"
+					},
+					{
+						"name": "Package",
+						"type": "String"
+					},
+					{
+						"name": "Quantity",
+						"type": "String"
+					},
+					{
+						"name": "Unit Price",
+						"type": "String"
+					},
+					{
+						"name": "Tax Rate",
+						"type": "String"
+					},
+					{
+						"name": "Total Excluding Tax",
+						"type": "String"
+					},
+					{
+						"name": "Tax Amount",
+						"type": "String"
+					},
+					{
+						"name": "Profit",
+						"type": "String"
+					},
+					{
+						"name": "Total Including Tax",
+						"type": "String"
+					},
+					{
+						"name": "Total Dry Items",
+						"type": "String"
+					},
+					{
+						"name": "Total Chiller Items",
+						"type": "String"
+					},
+					{
+						"name": "Lineage Key",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factsale_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "SaleKey",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "CityKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "BillToCustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "StockItemKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "InvoiceDateKey",
+						"type": "date"
+					},
+					{
+						"name": "DeliveryDateKey",
+						"type": "date"
+					},
+					{
+						"name": "SalespersonKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIInvoiceID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Description",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Package",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Quantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "UnitPrice",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxRate",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "TotalExcludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxAmount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Profit",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalIncludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalDryItems",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TotalChillerItems",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi",
+					"table": "FactSale"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factsale_big_1_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asadatalake01",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "wwi-factsale-big-1.csv",
+						"folderPath": "bronze",
+						"fileSystem": "dev"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": ""
+				},
+				"schema": [
+					{
+						"name": "Sale Key",
+						"type": "String"
+					},
+					{
+						"name": "City Key",
+						"type": "String"
+					},
+					{
+						"name": "Customer Key",
+						"type": "String"
+					},
+					{
+						"name": "Bill To Customer Key",
+						"type": "String"
+					},
+					{
+						"name": "Stock Item Key",
+						"type": "String"
+					},
+					{
+						"name": "Invoice Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Delivery Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Salesperson Key",
+						"type": "String"
+					},
+					{
+						"name": "WWI Invoice ID",
+						"type": "String"
+					},
+					{
+						"name": "Description",
+						"type": "String"
+					},
+					{
+						"name": "Package",
+						"type": "String"
+					},
+					{
+						"name": "Quantity",
+						"type": "String"
+					},
+					{
+						"name": "Unit Price",
+						"type": "String"
+					},
+					{
+						"name": "Tax Rate",
+						"type": "String"
+					},
+					{
+						"name": "Total Excluding Tax",
+						"type": "String"
+					},
+					{
+						"name": "Tax Amount",
+						"type": "String"
+					},
+					{
+						"name": "Profit",
+						"type": "String"
+					},
+					{
+						"name": "Total Including Tax",
+						"type": "String"
+					},
+					{
+						"name": "Total Dry Items",
+						"type": "String"
+					},
+					{
+						"name": "Total Chiller Items",
+						"type": "String"
+					},
+					{
+						"name": "Lineage Key",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factsale_big_2_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asadatalake01",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "wwi-factsale-big-2.csv",
+						"folderPath": "bronze",
+						"fileSystem": "dev"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": ""
+				},
+				"schema": [
+					{
+						"name": "Sale Key",
+						"type": "String"
+					},
+					{
+						"name": "City Key",
+						"type": "String"
+					},
+					{
+						"name": "Customer Key",
+						"type": "String"
+					},
+					{
+						"name": "Bill To Customer Key",
+						"type": "String"
+					},
+					{
+						"name": "Stock Item Key",
+						"type": "String"
+					},
+					{
+						"name": "Invoice Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Delivery Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Salesperson Key",
+						"type": "String"
+					},
+					{
+						"name": "WWI Invoice ID",
+						"type": "String"
+					},
+					{
+						"name": "Description",
+						"type": "String"
+					},
+					{
+						"name": "Package",
+						"type": "String"
+					},
+					{
+						"name": "Quantity",
+						"type": "String"
+					},
+					{
+						"name": "Unit Price",
+						"type": "String"
+					},
+					{
+						"name": "Tax Rate",
+						"type": "String"
+					},
+					{
+						"name": "Total Excluding Tax",
+						"type": "String"
+					},
+					{
+						"name": "Tax Amount",
+						"type": "String"
+					},
+					{
+						"name": "Profit",
+						"type": "String"
+					},
+					{
+						"name": "Total Including Tax",
+						"type": "String"
+					},
+					{
+						"name": "Total Dry Items",
+						"type": "String"
+					},
+					{
+						"name": "Total Chiller Items",
+						"type": "String"
+					},
+					{
+						"name": "Lineage Key",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/wwi_factsale_big_3_adls')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -269,6 +1343,71 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/wwi_factstockholding_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "StockHoldingKey",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "StockItemKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "QuantityOnHand",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "BinLocation",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LastStocktakeQuantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LastCostPrice",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "ReorderLevel",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TargetStockLevel",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi",
+					"table": "FactStockHolding"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/wwi_facttransaction_adls')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -365,6 +1504,371 @@
 						"type": "String"
 					}
 				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_facttransaction_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "TransactionKey",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "DateKey",
+						"type": "date"
+					},
+					{
+						"name": "CustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "BillToCustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "SupplierKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TransactionTypeKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "PaymentMethodKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWICustomerTransaction ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWISupplierTransaction ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIInvoiceID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIPurchaseOrderID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "SupplierInvoiceNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TotalExcludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxAmount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalIncludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "OutstandingBalance",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "IsFinalized",
+						"type": "bit"
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi",
+					"table": "FactTransaction"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_perf_factsale_fast_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "SaleKey",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "CityKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "BillToCustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "StockItemKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "InvoiceDateKey",
+						"type": "date"
+					},
+					{
+						"name": "DeliveryDateKey",
+						"type": "date"
+					},
+					{
+						"name": "SalespersonKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIInvoiceID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Description",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Package",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Quantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "UnitPrice",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxRate",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "TotalExcludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxAmount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Profit",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalIncludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalDryItems",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TotalChillerItems",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi_perf",
+					"table": "FactSale_Fast"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_perf_factsale_slow_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "SaleKey",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "CityKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "BillToCustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "StockItemKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "InvoiceDateKey",
+						"type": "date"
+					},
+					{
+						"name": "DeliveryDateKey",
+						"type": "date"
+					},
+					{
+						"name": "SalespersonKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIInvoiceID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Description",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Package",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Quantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "UnitPrice",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxRate",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "TotalExcludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxAmount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Profit",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalIncludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalDryItems",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TotalChillerItems",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi_perf",
+					"table": "FactSale_Slow"
+				}
 			},
 			"dependsOn": []
 		}
