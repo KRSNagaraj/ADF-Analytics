@@ -18,7 +18,7 @@
 			"value": ""
 		},
 		"asadatalake01_properties_typeProperties_url": {
-			"value": "https://synapseworkshopstorage01.dfs.core.windows.net"
+			"value": "https://synapseworkshopstorage.dfs.core.windows.net"
 		},
 		"containerUri": {
 			"value": ""
