@@ -13,6 +13,76 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/wwi_dimsupplier_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "SupplierKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWISupplierID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Supplier",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Category",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PrimaryContact",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SupplierReference",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PaymentDays",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "PostalCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "ValidTo",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi",
+					"table": "DimSupplier"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/wwi_dimtransactiontype_adls')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1741,133 +1811,6 @@
 				"typeProperties": {
 					"schema": "wwi_perf",
 					"table": "FactSale_Fast"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/wwi_perf_factsale_slow_asa')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SynapseDW",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlDWTable",
-				"schema": [
-					{
-						"name": "SaleKey",
-						"type": "bigint",
-						"precision": 19
-					},
-					{
-						"name": "CityKey",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "CustomerKey",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "BillToCustomerKey",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "StockItemKey",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "InvoiceDateKey",
-						"type": "date"
-					},
-					{
-						"name": "DeliveryDateKey",
-						"type": "date"
-					},
-					{
-						"name": "SalespersonKey",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "WWIInvoiceID",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Description",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Package",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Quantity",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "UnitPrice",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "TaxRate",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 3
-					},
-					{
-						"name": "TotalExcludingTax",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "TaxAmount",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "Profit",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "TotalIncludingTax",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "TotalDryItems",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "TotalChillerItems",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "LineageKey",
-						"type": "int",
-						"precision": 10
-					}
-				],
-				"typeProperties": {
-					"schema": "wwi_perf",
-					"table": "FactSale_Slow"
 				}
 			},
 			"dependsOn": []

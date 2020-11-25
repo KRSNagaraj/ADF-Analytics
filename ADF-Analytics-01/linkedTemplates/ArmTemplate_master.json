@@ -27,6 +27,17 @@
 			"type": "string",
 			"defaultValue": "https://synapseworkshopstorage.dfs.core.windows.net"
 		},
+		"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint": {
+			"type": "string",
+			"defaultValue": "01sql5vumf.database.windows.net"
+		},
+		"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName": {
+			"type": "string",
+			"defaultValue": "sqladminuser"
+		},
+		"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword": {
+			"type": "secureString"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -68,6 +79,15 @@
 					},
 					"asadatalake01_properties_typeProperties_url": {
 						"value": "[parameters('asadatalake01_properties_typeProperties_url')]"
+					},
+					"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint": {
+						"value": "[parameters('ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint')]"
+					},
+					"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName": {
+						"value": "[parameters('ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName')]"
+					},
+					"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword": {
+						"value": "[parameters('ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword')]"
 					}
 				}
 			},

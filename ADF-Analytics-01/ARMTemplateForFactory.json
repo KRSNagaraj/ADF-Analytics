@@ -26,6 +26,17 @@
 		"asadatalake01_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://synapseworkshopstorage.dfs.core.windows.net"
+		},
+		"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint": {
+			"type": "string",
+			"defaultValue": "01sql5vumf.database.windows.net"
+		},
+		"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName": {
+			"type": "string",
+			"defaultValue": "sqladminuser"
+		},
+		"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword": {
+			"type": "secureString"
 		}
 	},
 	"variables": {
@@ -263,6 +274,9 @@
 						]
 					}
 				],
+				"folder": {
+					"name": "WW-Pipelines"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
@@ -541,6 +555,9 @@
 						]
 					}
 				],
+				"folder": {
+					"name": "WW-Pipelines"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
@@ -2717,6 +2734,9 @@
 						]
 					}
 				],
+				"folder": {
+					"name": "WW-Pipelines"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
@@ -3803,6 +3823,9 @@
 						]
 					}
 				],
+				"folder": {
+					"name": "WW-Pipelines"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
@@ -4869,6 +4892,9 @@
 						]
 					}
 				],
+				"folder": {
+					"name": "WW-Pipelines"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
@@ -8041,6 +8067,37 @@
 				"type": "AzureBlobStorage",
 				"typeProperties": {
 					"connectionString": "[parameters('azure_synapse_analytics_linked_service_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF-SSIS-Runtime')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "Managed",
+				"description": "ADF-SSIS-Runtime",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "North Europe",
+						"nodeSize": "Standard_D2_v2",
+						"numberOfNodes": 1,
+						"maxParallelExecutionsPerNode": 1
+					},
+					"ssisProperties": {
+						"catalogInfo": {
+							"catalogServerEndpoint": "[parameters('ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint')]",
+							"catalogAdminUserName": "[parameters('ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName')]",
+							"catalogAdminPassword": {
+								"type": "SecureString",
+								"value": "[parameters('ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword')]"
+							},
+							"catalogPricingTier": "Basic"
+						},
+						"edition": "Standard",
+						"licenseType": "BasePrice"
+					}
 				}
 			},
 			"dependsOn": []

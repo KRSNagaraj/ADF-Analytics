@@ -19,6 +19,15 @@
 		},
 		"asadatalake01_properties_typeProperties_url": {
 			"value": "https://synapseworkshopstorage.dfs.core.windows.net"
+		},
+		"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint": {
+			"value": "01sql5vumf.database.windows.net"
+		},
+		"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName": {
+			"value": "sqladminuser"
+		},
+		"ADF-SSIS-Runtime_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword": {
+			"value": ""
 		}
 	}
 }
