@@ -1,5 +1,5 @@
 {
-	"name": "WK 2 - Enrich Data",
+	"name": "WK 2 - Enrich Data_copy1",
 	"properties": {
 		"description": "Pipeline for enriching data from DimCustomer with additional location information from an external data source.",
 		"activities": [
@@ -35,7 +35,10 @@
 						},
 						"datasetParameters": {
 							"DimCustomer": {
-								"UniqueId": "A01"
+								"UniqueId": {
+									"value": "@substring(pipeline().RunId,0,8)",
+									"type": "Expression"
+								}
 							},
 							"EnrichedCustomerData": {
 								"UniqueId": {
@@ -218,7 +221,10 @@
 						"referenceName": "wwi_staging_dimcustomer_asa",
 						"type": "DatasetReference",
 						"parameters": {
-							"UniqueId": "A01"
+							"UniqueId": {
+								"value": "@substring(pipeline().RunId,0,8)",
+								"type": "Expression"
+							}
 						}
 					}
 				]
