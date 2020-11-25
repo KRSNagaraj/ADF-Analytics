@@ -1,0 +1,17 @@
+{
+	"name": "WeatherData",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "WeatherWebdata",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation"
+			}
+		},
+		"schema": {}
+	}
+}
