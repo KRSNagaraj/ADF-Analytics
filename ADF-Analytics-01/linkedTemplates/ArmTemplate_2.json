@@ -13,6 +13,344 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/wwi_facttransaction_adls')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asadatalake01",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "wwi-facttransaction.csv",
+						"folderPath": "bronze",
+						"fileSystem": "dev"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": ""
+				},
+				"schema": [
+					{
+						"name": "Transaction Key",
+						"type": "String"
+					},
+					{
+						"name": "Date Key",
+						"type": "String"
+					},
+					{
+						"name": "Customer Key",
+						"type": "String"
+					},
+					{
+						"name": "Bill To Customer Key",
+						"type": "String"
+					},
+					{
+						"name": "Supplier Key",
+						"type": "String"
+					},
+					{
+						"name": "Transaction Type Key",
+						"type": "String"
+					},
+					{
+						"name": "Payment Method Key",
+						"type": "String"
+					},
+					{
+						"name": "WWI Customer Transaction ID",
+						"type": "String"
+					},
+					{
+						"name": "WWI Supplier Transaction ID",
+						"type": "String"
+					},
+					{
+						"name": "WWI Invoice ID",
+						"type": "String"
+					},
+					{
+						"name": "WWI Purchase Order ID",
+						"type": "String"
+					},
+					{
+						"name": "Supplier Invoice Number",
+						"type": "String"
+					},
+					{
+						"name": "Total Excluding Tax",
+						"type": "String"
+					},
+					{
+						"name": "Tax Amount",
+						"type": "String"
+					},
+					{
+						"name": "Total Including Tax",
+						"type": "String"
+					},
+					{
+						"name": "Outstanding Balance",
+						"type": "String"
+					},
+					{
+						"name": "Is Finalized",
+						"type": "String"
+					},
+					{
+						"name": "Lineage Key",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_facttransaction_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "TransactionKey",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "DateKey",
+						"type": "date"
+					},
+					{
+						"name": "CustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "BillToCustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "SupplierKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TransactionTypeKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "PaymentMethodKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWICustomerTransaction ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWISupplierTransaction ID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIInvoiceID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIPurchaseOrderID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "SupplierInvoiceNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TotalExcludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxAmount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalIncludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "OutstandingBalance",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "IsFinalized",
+						"type": "bit"
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi",
+					"table": "FactTransaction"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wwi_perf_factsale_fast_asa')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SynapseDW",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "SaleKey",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "CityKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "CustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "BillToCustomerKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "StockItemKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "InvoiceDateKey",
+						"type": "date"
+					},
+					{
+						"name": "DeliveryDateKey",
+						"type": "date"
+					},
+					{
+						"name": "SalespersonKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "WWIInvoiceID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Description",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Package",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Quantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "UnitPrice",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxRate",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "TotalExcludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxAmount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "Profit",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalIncludingTax",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TotalDryItems",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TotalChillerItems",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "LineageKey",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "wwi_perf",
+					"table": "FactSale_Fast"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/wwi_perf_factsale_slow_asa')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2643,7 +2981,10 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/wwi_facttransaction_adls')]",
+				"[concat(variables('factoryId'), '/datasets/wwi_facttransaction_asa')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Import WWI Perf Data - Fact Sale Fast')]",
@@ -3705,7 +4046,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/wwi_perf_factsale_fast_asa')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Import WWI Perf Data - Fact Sale Slow')]",
@@ -4772,6 +5115,73 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Import Weather Data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy weather data",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET",
+									"additionalHeaders": "x-apikey: 5a31643dcb25c1076c7cd9ab\nContent-Type: application/json\n",
+									"requestTimeout": ""
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "WeatherData",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "WeatherData_ADLS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"folder": {
+					"name": "AL-Pipelines"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/EnrichCustomerData')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -4830,7 +5240,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Exercise 2 - Enrich Data')]",
+			"name": "[concat(parameters('factoryName'), '/WK 2 - Enrich Data')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -4840,7 +5250,253 @@
 						"name": "Enrich Customer Data",
 						"description": "Data flow that enriches the data from the DimCustomer table with location information from an external data source. The enriched data is then copied to a staging table in Azure Synapse Analytics.",
 						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Import Customer dimension",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "EnrichCustomerData",
+								"type": "DataFlowReference",
+								"parameters": {
+									"UniqueId": {
+										"value": "'@{substring(pipeline().RunId,0,8)}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"PostalCodes": {},
+									"DimCustomer": {
+										"UniqueId": "A01"
+									},
+									"EnrichedCustomerData": {
+										"UniqueId": {
+											"value": "@substring(pipeline().RunId,0,8)",
+											"type": "Expression"
+										}
+									},
+									"EnrichedCustomerDataAdls": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 48,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Import Customer dimension",
+						"description": "Copies Customer data from files stored in a data lake, renames columns, and inserts the data into a staging version of the DimCustomer table in Azure Synapse Analytics.",
+						"type": "Copy",
 						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "dev/bronze/wwi-dimcustomer.csv"
+							},
+							{
+								"name": "Destination",
+								"value": "wwi_staging.@{concat('DimCustomer_',substring(pipeline().RunId,0,8))}"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "SqlDWSink",
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Customer Key",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "CustomerKey",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "WWI Customer ID",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "WWICustomerID",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "Customer",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Bill To Customer",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BillToCustomer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Category",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Category",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Buying Group",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BuyingGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Primary Contact",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PrimaryContact",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Postal Code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PostalCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Valid From",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "ValidFrom",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "Valid To",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "ValidTo",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "Lineage Key",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "LineageKey",
+											"type": "Int32"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "wwi_dimcustomer_adls",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "wwi_staging_dimcustomer_asa",
+								"type": "DatasetReference",
+								"parameters": {
+									"UniqueId": "A01"
+								}
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/EnrichCustomerData')]",
+				"[concat(variables('factoryId'), '/datasets/wwi_staging_dimcustomer_asa')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WK 2 - Enrich Data_copy1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline for enriching data from DimCustomer with additional location information from an external data source.",
+				"activities": [
+					{
+						"name": "Enrich Customer Data",
+						"description": "Data flow that enriches the data from the DimCustomer table with location information from an external data source. The enriched data is then copied to a staging table in Azure Synapse Analytics.",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Import Customer dimension",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -5060,9 +5716,6 @@
 						]
 					}
 				],
-				"folder": {
-					"name": "WW-Pipelines"
-				},
 				"annotations": []
 			},
 			"dependsOn": [

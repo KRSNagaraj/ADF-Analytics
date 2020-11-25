@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'azure_synapse_analytics_linked_service'"
 		},
+		"WeatherWebdata_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://weather-b362.restdb.io/rest/random-weather-dec-2016"
+		},
 		"asadatalake01_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://synapseworkshopstorage.dfs.core.windows.net"
@@ -43,248 +47,6 @@
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
-		{
-			"name": "[concat(parameters('factoryName'), '/Exercise 2 - Enrich Data')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Pipeline for enriching data from DimCustomer with additional location information from an external data source.",
-				"activities": [
-					{
-						"name": "Enrich Customer Data",
-						"description": "Data flow that enriches the data from the DimCustomer table with location information from an external data source. The enriched data is then copied to a staging table in Azure Synapse Analytics.",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "EnrichCustomerData",
-								"type": "DataFlowReference",
-								"parameters": {
-									"UniqueId": {
-										"value": "'@{substring(pipeline().RunId,0,8)}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"PostalCodes": {},
-									"DimCustomer": {
-										"UniqueId": {
-											"value": "@substring(pipeline().RunId,0,8)",
-											"type": "Expression"
-										}
-									},
-									"EnrichedCustomerData": {
-										"UniqueId": {
-											"value": "@substring(pipeline().RunId,0,8)",
-											"type": "Expression"
-										}
-									},
-									"EnrichedCustomerDataAdls": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 48,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					},
-					{
-						"name": "Import Customer dimension",
-						"description": "Copies Customer data from files stored in a data lake, renames columns, and inserts the data into a staging version of the DimCustomer table in Azure Synapse Analytics.",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [
-							{
-								"name": "Source",
-								"value": "dev/bronze/wwi-dimcustomer.csv"
-							},
-							{
-								"name": "Destination",
-								"value": "wwi_staging.@{concat('DimCustomer_',substring(pipeline().RunId,0,8))}"
-							}
-						],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"sink": {
-								"type": "SqlDWSink",
-								"tableOption": "autoCreate",
-								"disableMetricsCollection": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"name": "Customer Key",
-											"type": "Int32"
-										},
-										"sink": {
-											"name": "CustomerKey",
-											"type": "Int32"
-										}
-									},
-									{
-										"source": {
-											"name": "WWI Customer ID",
-											"type": "Int32"
-										},
-										"sink": {
-											"name": "WWICustomerID",
-											"type": "Int32"
-										}
-									},
-									{
-										"source": {
-											"name": "Customer",
-											"type": "String"
-										},
-										"sink": {
-											"name": "Customer",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "Bill To Customer",
-											"type": "String"
-										},
-										"sink": {
-											"name": "BillToCustomer",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "Category",
-											"type": "String"
-										},
-										"sink": {
-											"name": "Category",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "Buying Group",
-											"type": "String"
-										},
-										"sink": {
-											"name": "BuyingGroup",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "Primary Contact",
-											"type": "String"
-										},
-										"sink": {
-											"name": "PrimaryContact",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "Postal Code",
-											"type": "String"
-										},
-										"sink": {
-											"name": "PostalCode",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"name": "Valid From",
-											"type": "DateTime"
-										},
-										"sink": {
-											"name": "ValidFrom",
-											"type": "DateTime"
-										}
-									},
-									{
-										"source": {
-											"name": "Valid To",
-											"type": "DateTime"
-										},
-										"sink": {
-											"name": "ValidTo",
-											"type": "DateTime"
-										}
-									},
-									{
-										"source": {
-											"name": "Lineage Key",
-											"type": "Int32"
-										},
-										"sink": {
-											"name": "LineageKey",
-											"type": "Int32"
-										}
-									}
-								]
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "wwi_dimcustomer_adls",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "wwi_staging_dimcustomer_asa",
-								"type": "DatasetReference",
-								"parameters": {
-									"UniqueId": {
-										"value": "@substring(pipeline().RunId,0,8)",
-										"type": "Expression"
-									}
-								}
-							}
-						]
-					}
-				],
-				"folder": {
-					"name": "WW-Pipelines"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/EnrichCustomerData')]",
-				"[concat(variables('factoryId'), '/datasets/wwi_dimcustomer_adls')]",
-				"[concat(variables('factoryId'), '/datasets/wwi_staging_dimcustomer_asa')]"
-			]
-		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Import WWI Data - Fact Sale Full')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -4907,6 +4669,612 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Import Weather Data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy weather data",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET",
+									"additionalHeaders": "x-apikey: 5a31643dcb25c1076c7cd9ab\nContent-Type: application/json\n",
+									"requestTimeout": ""
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "WeatherData",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "WeatherData_ADLS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"folder": {
+					"name": "AL-Pipelines"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/WeatherData')]",
+				"[concat(variables('factoryId'), '/datasets/WeatherData_ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WK 2 - Enrich Data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline for enriching data from DimCustomer with additional location information from an external data source.",
+				"activities": [
+					{
+						"name": "Enrich Customer Data",
+						"description": "Data flow that enriches the data from the DimCustomer table with location information from an external data source. The enriched data is then copied to a staging table in Azure Synapse Analytics.",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Import Customer dimension",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "EnrichCustomerData",
+								"type": "DataFlowReference",
+								"parameters": {
+									"UniqueId": {
+										"value": "'@{substring(pipeline().RunId,0,8)}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"PostalCodes": {},
+									"DimCustomer": {
+										"UniqueId": "A01"
+									},
+									"EnrichedCustomerData": {
+										"UniqueId": {
+											"value": "@substring(pipeline().RunId,0,8)",
+											"type": "Expression"
+										}
+									},
+									"EnrichedCustomerDataAdls": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 48,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Import Customer dimension",
+						"description": "Copies Customer data from files stored in a data lake, renames columns, and inserts the data into a staging version of the DimCustomer table in Azure Synapse Analytics.",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "dev/bronze/wwi-dimcustomer.csv"
+							},
+							{
+								"name": "Destination",
+								"value": "wwi_staging.@{concat('DimCustomer_',substring(pipeline().RunId,0,8))}"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "SqlDWSink",
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Customer Key",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "CustomerKey",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "WWI Customer ID",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "WWICustomerID",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "Customer",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Bill To Customer",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BillToCustomer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Category",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Category",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Buying Group",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BuyingGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Primary Contact",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PrimaryContact",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Postal Code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PostalCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Valid From",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "ValidFrom",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "Valid To",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "ValidTo",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "Lineage Key",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "LineageKey",
+											"type": "Int32"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "wwi_dimcustomer_adls",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "wwi_staging_dimcustomer_asa",
+								"type": "DatasetReference",
+								"parameters": {
+									"UniqueId": "A01"
+								}
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/EnrichCustomerData')]",
+				"[concat(variables('factoryId'), '/datasets/wwi_dimcustomer_adls')]",
+				"[concat(variables('factoryId'), '/datasets/wwi_staging_dimcustomer_asa')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WK 2 - Enrich Data_copy1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline for enriching data from DimCustomer with additional location information from an external data source.",
+				"activities": [
+					{
+						"name": "Enrich Customer Data",
+						"description": "Data flow that enriches the data from the DimCustomer table with location information from an external data source. The enriched data is then copied to a staging table in Azure Synapse Analytics.",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Import Customer dimension",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "EnrichCustomerData",
+								"type": "DataFlowReference",
+								"parameters": {
+									"UniqueId": {
+										"value": "'@{substring(pipeline().RunId,0,8)}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"PostalCodes": {},
+									"DimCustomer": {
+										"UniqueId": {
+											"value": "@substring(pipeline().RunId,0,8)",
+											"type": "Expression"
+										}
+									},
+									"EnrichedCustomerData": {
+										"UniqueId": {
+											"value": "@substring(pipeline().RunId,0,8)",
+											"type": "Expression"
+										}
+									},
+									"EnrichedCustomerDataAdls": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 48,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "Import Customer dimension",
+						"description": "Copies Customer data from files stored in a data lake, renames columns, and inserts the data into a staging version of the DimCustomer table in Azure Synapse Analytics.",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "dev/bronze/wwi-dimcustomer.csv"
+							},
+							{
+								"name": "Destination",
+								"value": "wwi_staging.@{concat('DimCustomer_',substring(pipeline().RunId,0,8))}"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "SqlDWSink",
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Customer Key",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "CustomerKey",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "WWI Customer ID",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "WWICustomerID",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"name": "Customer",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Customer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Bill To Customer",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BillToCustomer",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Category",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Category",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Buying Group",
+											"type": "String"
+										},
+										"sink": {
+											"name": "BuyingGroup",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Primary Contact",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PrimaryContact",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Postal Code",
+											"type": "String"
+										},
+										"sink": {
+											"name": "PostalCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Valid From",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "ValidFrom",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "Valid To",
+											"type": "DateTime"
+										},
+										"sink": {
+											"name": "ValidTo",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "Lineage Key",
+											"type": "Int32"
+										},
+										"sink": {
+											"name": "LineageKey",
+											"type": "Int32"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "wwi_dimcustomer_adls",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "wwi_staging_dimcustomer_asa",
+								"type": "DatasetReference",
+								"parameters": {
+									"UniqueId": {
+										"value": "@substring(pipeline().RunId,0,8)",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/EnrichCustomerData')]",
+				"[concat(variables('factoryId'), '/datasets/wwi_dimcustomer_adls')]",
+				"[concat(variables('factoryId'), '/datasets/wwi_staging_dimcustomer_asa')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WeatherData')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WeatherWebdata",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/WeatherWebdata')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WeatherData_ADLS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asadatalake01",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Wather",
+						"fileSystem": "input"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/asadatalake01')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/external_postalcode_adls')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -8024,6 +8392,21 @@
 				"type": "AzureSqlDW",
 				"typeProperties": {
 					"connectionString": "[parameters('SynapseDW_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WeatherWebdata')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('WeatherWebdata_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
 				}
 			},
 			"dependsOn": []

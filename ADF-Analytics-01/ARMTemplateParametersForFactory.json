@@ -17,6 +17,9 @@
 		"azure_synapse_analytics_linked_service_connectionString": {
 			"value": ""
 		},
+		"WeatherWebdata_properties_typeProperties_url": {
+			"value": "https://weather-b362.restdb.io/rest/random-weather-dec-2016"
+		},
 		"asadatalake01_properties_typeProperties_url": {
 			"value": "https://synapseworkshopstorage.dfs.core.windows.net"
 		},

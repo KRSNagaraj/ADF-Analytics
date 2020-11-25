@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'azure_synapse_analytics_linked_service'"
 		},
+		"WeatherWebdata_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://weather-b362.restdb.io/rest/random-weather-dec-2016"
+		},
 		"asadatalake01_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://synapseworkshopstorage.dfs.core.windows.net"
@@ -52,6 +56,21 @@
 				"type": "AzureSqlDW",
 				"typeProperties": {
 					"connectionString": "[parameters('SynapseDW_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WeatherWebdata')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('WeatherWebdata_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
 				}
 			},
 			"dependsOn": []
@@ -129,6 +148,56 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WeatherData')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WeatherWebdata",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/WeatherWebdata')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WeatherData_ADLS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asadatalake01",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Wather",
+						"fileSystem": "input"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/asadatalake01')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/external_postalcode_adls')]",
@@ -914,299 +983,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/SynapseDW')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/wwi_dimstockitem_adls')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "asadatalake01",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "wwi-dimstockitem.csv",
-						"folderPath": "bronze",
-						"fileSystem": "dev"
-					},
-					"columnDelimiter": "|",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": ""
-				},
-				"schema": [
-					{
-						"name": "Stock Item Key",
-						"type": "String"
-					},
-					{
-						"name": "WWI Stock Item ID",
-						"type": "String"
-					},
-					{
-						"name": "Stock Item",
-						"type": "String"
-					},
-					{
-						"name": "Color",
-						"type": "String"
-					},
-					{
-						"name": "Selling Package",
-						"type": "String"
-					},
-					{
-						"name": "Buying Package",
-						"type": "String"
-					},
-					{
-						"name": "Brand",
-						"type": "String"
-					},
-					{
-						"name": "Size",
-						"type": "String"
-					},
-					{
-						"name": "Lead Time Days",
-						"type": "String"
-					},
-					{
-						"name": "Quantity Per Outer",
-						"type": "String"
-					},
-					{
-						"name": "Is Chiller Stock",
-						"type": "String"
-					},
-					{
-						"name": "Barcode",
-						"type": "String"
-					},
-					{
-						"name": "Tax Rate",
-						"type": "String"
-					},
-					{
-						"name": "Unit Price",
-						"type": "String"
-					},
-					{
-						"name": "Recommended Retail Price",
-						"type": "String"
-					},
-					{
-						"name": "Typical Weight Per Unit",
-						"type": "String"
-					},
-					{
-						"name": "Valid From",
-						"type": "String"
-					},
-					{
-						"name": "Valid To",
-						"type": "String"
-					},
-					{
-						"name": "Lineage Key",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/asadatalake01')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/wwi_dimstockitem_asa')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SynapseDW",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlDWTable",
-				"schema": [
-					{
-						"name": "StockItemKey",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "WWIStockItemID",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Stock Item",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Color",
-						"type": "nvarchar"
-					},
-					{
-						"name": "SellingPackage",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Buying Package",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Brand",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Size",
-						"type": "nvarchar"
-					},
-					{
-						"name": "LeadTimeDays",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "QuantityPerOuter",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "IsChillerStock",
-						"type": "bit"
-					},
-					{
-						"name": "Barcode",
-						"type": "nvarchar"
-					},
-					{
-						"name": "TaxRate",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 3
-					},
-					{
-						"name": "UnitPrice",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "RecommendedRetailPrice",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "TypicalWeightPerUnit",
-						"type": "decimal",
-						"precision": 18,
-						"scale": 3
-					},
-					{
-						"name": "ValidFrom",
-						"type": "datetime2",
-						"scale": 7
-					},
-					{
-						"name": "ValidTo",
-						"type": "datetime2",
-						"scale": 7
-					},
-					{
-						"name": "LineageKey",
-						"type": "int",
-						"precision": 10
-					}
-				],
-				"typeProperties": {
-					"schema": "wwi",
-					"table": "DimStockItem"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SynapseDW')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/wwi_dimsupplier_adls')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "asadatalake01",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "wwi-dimsupplier.csv",
-						"folderPath": "bronze",
-						"fileSystem": "dev"
-					},
-					"columnDelimiter": "|",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": ""
-				},
-				"schema": [
-					{
-						"name": "Supplier Key",
-						"type": "String"
-					},
-					{
-						"name": "WWI Supplier ID",
-						"type": "String"
-					},
-					{
-						"name": "Supplier",
-						"type": "String"
-					},
-					{
-						"name": "Category",
-						"type": "String"
-					},
-					{
-						"name": "Primary Contact",
-						"type": "String"
-					},
-					{
-						"name": "Supplier Reference",
-						"type": "String"
-					},
-					{
-						"name": "Payment Days",
-						"type": "String"
-					},
-					{
-						"name": "Postal Code",
-						"type": "String"
-					},
-					{
-						"name": "Valid From",
-						"type": "String"
-					},
-					{
-						"name": "Valid To",
-						"type": "String"
-					},
-					{
-						"name": "Lineage Key",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/asadatalake01')]"
 			]
 		}
 	]
