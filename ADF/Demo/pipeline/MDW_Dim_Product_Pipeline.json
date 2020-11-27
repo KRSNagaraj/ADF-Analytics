@@ -4,7 +4,7 @@
 		"description": "MDW_Dim_Product",
 		"activities": [
 			{
-				"name": "Copy data1",
+				"name": "Copy data Source to Staging",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -16,28 +16,101 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"enableStaging": false
-				}
-			},
-			{
-				"name": "Notebook1",
-				"type": "DatabricksNotebook",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select * from dbo.product_table where Sync_Flag=0;",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": "truncate table dbo.product_dim_stg",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "product_id",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "product_id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "product_name",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "product_name",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "unit_price",
+									"type": "Double",
+									"physicalType": "float"
+								},
+								"sink": {
+									"name": "unit_price",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "product_desc",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "product_desc",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "eligible_promotion",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "eligible_promotion",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
 				},
-				"userProperties": [],
-				"typeProperties": {
-					"notebookPath": "/ADF-ADB/Transformations"
-				},
-				"linkedServiceName": {
-					"referenceName": "AzureDatabricksLinkedService",
-					"type": "LinkedServiceReference"
-				}
+				"inputs": [
+					{
+						"referenceName": "SourceProductTable",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "TargetProductStaging",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"folder": {
