@@ -450,6 +450,123 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_DeltaLake')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "DF_DeltaLake",
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_User_Parquet",
+								"type": "DatasetReference"
+							},
+							"name": "SRCRawUserParquet"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "AzureDataLakeStorage",
+								"type": "LinkedServiceReference"
+							},
+							"name": "DSTStagingUserDelta"
+						}
+					],
+					"transformations": [],
+					"script": "source(output(\n\t\tregistration_dttm as timestamp,\n\t\tid as integer,\n\t\tfirst_name as string,\n\t\tlast_name as string,\n\t\temail as string,\n\t\tgender as string,\n\t\tip_address as string,\n\t\tcc as string,\n\t\tcountry as string,\n\t\tbirthdate as string,\n\t\tsalary as double,\n\t\ttitle as string,\n\t\tcomments as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet',\n\tpartitionBy('hash', 20,\n\t\tid\n\t)) ~> SRCRawUserParquet\nSRCRawUserParquet sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'sinkdata',\n\tfolderPath: 'LakeHouse/Staging',\n\ttruncate: true,\n\tmergeSchema: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DSTStagingUserDelta"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_User_Parquet')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_Product_SCD1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "DF_Product_SCD1",
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "TargetProductStaging",
+								"type": "DatasetReference"
+							},
+							"name": "sourceStaging"
+						},
+						{
+							"dataset": {
+								"referenceName": "TargetProductTable",
+								"type": "DatasetReference"
+							},
+							"name": "sourceTarget"
+						},
+						{
+							"dataset": {
+								"referenceName": "TargetProductTable",
+								"type": "DatasetReference"
+							},
+							"name": "MaxSurrogateKey"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_DIM_Product_Synapse",
+								"type": "DatasetReference"
+							},
+							"name": "UpdateSink"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_DIM_Product_Synapse",
+								"type": "DatasetReference"
+							},
+							"name": "InsertNewsink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "ExistsForUpdate"
+						},
+						{
+							"name": "ProductKeyAddedDateLookup"
+						},
+						{
+							"name": "UpdatedDateDerivedColumn"
+						},
+						{
+							"name": "UpdateAlterRow"
+						},
+						{
+							"name": "InsertNewRecordExists"
+						},
+						{
+							"name": "JoinForSurrogateKey"
+						},
+						{
+							"name": "DerivedColumns"
+						},
+						{
+							"name": "SurrogateKeyCalculation"
+						}
+					],
+					"script": "source(output(\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> sourceStaging\nsource(output(\n\t\tproduct_key as integer,\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer,\n\t\tadded_date as timestamp,\n\t\tupdated_date as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> sourceTarget\nsource(output(\n\t\tMaxSurrogateKey as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select isNull(max(product_key),0) as MaxSurrogateKey from dbo.product_dim',\n\tformat: 'query') ~> MaxSurrogateKey\nsourceStaging, sourceTarget exists(sourceStaging@product_id == sourceTarget@product_id,\n\tnegate:false,\n\tbroadcast: 'auto')~> ExistsForUpdate\nExistsForUpdate, sourceTarget lookup(sourceStaging@product_id == sourceTarget@product_id,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> ProductKeyAddedDateLookup\nProductKeyAddedDateLookup derive(updated_date = currentTimestamp()) ~> UpdatedDateDerivedColumn\nUpdatedDateDerivedColumn alterRow(updateIf(true())) ~> UpdateAlterRow\nsourceStaging, sourceTarget exists(sourceStaging@product_id == sourceTarget@product_id,\n\tnegate:true,\n\tbroadcast: 'auto')~> InsertNewRecordExists\nInsertNewRecordExists, MaxSurrogateKey join(true(),\n\tjoinType:'cross',\n\tbroadcast: 'auto')~> JoinForSurrogateKey\nSurrogateKeyCalculation derive(product_key = MaxSurrogateKey+s_key,\n\t\tadded_date = currentTimestamp()) ~> DerivedColumns\nJoinForSurrogateKey keyGenerate(output(s_key as long),\n\tstartAt: 1L) ~> SurrogateKeyCalculation\nUpdateAlterRow sink(input(\n\t\tproduct_key as integer,\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer,\n\t\tadded_date as timestamp,\n\t\tupdated_date as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['product_id'],\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\tproduct_key,\n\t\tproduct_id = sourceStaging@product_id,\n\t\tproduct_name = sourceStaging@product_name,\n\t\tunit_price = sourceStaging@unit_price,\n\t\tproduct_desc = sourceStaging@product_desc,\n\t\teligible_promotion = sourceStaging@eligible_promotion,\n\t\tadded_date,\n\t\tupdated_date\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> UpdateSink\nDerivedColumns sink(input(\n\t\tproduct_key as integer,\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer,\n\t\tadded_date as timestamp,\n\t\tupdated_date as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\tproduct_key,\n\t\tproduct_id,\n\t\tproduct_name,\n\t\tunit_price,\n\t\tproduct_desc,\n\t\teligible_promotion,\n\t\tadded_date\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> InsertNewsink"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/TargetProductStaging')]",
+				"[concat(variables('factoryId'), '/datasets/TargetProductTable')]",
+				"[concat(variables('factoryId'), '/datasets/DS_DIM_Product_Synapse')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/GenericSCDType2')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -540,121 +657,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflowStagingTarget')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "TargetProductStaging",
-								"type": "DatasetReference"
-							},
-							"name": "sourceStaging"
-						},
-						{
-							"dataset": {
-								"referenceName": "TargetProductTable",
-								"type": "DatasetReference"
-							},
-							"name": "sourceTarget"
-						},
-						{
-							"dataset": {
-								"referenceName": "TargetProductTable",
-								"type": "DatasetReference"
-							},
-							"name": "MaxSurrogateKey"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "DS_DIM_Product_Synapse",
-								"type": "DatasetReference"
-							},
-							"name": "UpdateSink"
-						},
-						{
-							"dataset": {
-								"referenceName": "DS_DIM_Product_Synapse",
-								"type": "DatasetReference"
-							},
-							"name": "InsertNewsink"
-						}
-					],
-					"transformations": [
-						{
-							"name": "ExistsForUpdate"
-						},
-						{
-							"name": "ProductKeyAddedDateLookup"
-						},
-						{
-							"name": "UpdatedDateDerivedColumn"
-						},
-						{
-							"name": "UpdateAlterRow"
-						},
-						{
-							"name": "InsertNewRecordExists"
-						},
-						{
-							"name": "JoinForSurrogateKey"
-						},
-						{
-							"name": "DerivedColumns"
-						},
-						{
-							"name": "SurrogateKeyCalculation"
-						}
-					],
-					"script": "source(output(\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> sourceStaging\nsource(output(\n\t\tproduct_key as integer,\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer,\n\t\tadded_date as timestamp,\n\t\tupdated_date as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> sourceTarget\nsource(output(\n\t\tMaxSurrogateKey as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select isNull(max(product_key),0) as MaxSurrogateKey from dbo.product_dim',\n\tformat: 'query') ~> MaxSurrogateKey\nsourceStaging, sourceTarget exists(sourceStaging@product_id == sourceTarget@product_id,\n\tnegate:false,\n\tbroadcast: 'auto')~> ExistsForUpdate\nExistsForUpdate, sourceTarget lookup(sourceStaging@product_id == sourceTarget@product_id,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> ProductKeyAddedDateLookup\nProductKeyAddedDateLookup derive(updated_date = currentTimestamp()) ~> UpdatedDateDerivedColumn\nUpdatedDateDerivedColumn alterRow(updateIf(true())) ~> UpdateAlterRow\nsourceStaging, sourceTarget exists(sourceStaging@product_id == sourceTarget@product_id,\n\tnegate:true,\n\tbroadcast: 'auto')~> InsertNewRecordExists\nInsertNewRecordExists, MaxSurrogateKey join(true(),\n\tjoinType:'cross',\n\tbroadcast: 'auto')~> JoinForSurrogateKey\nSurrogateKeyCalculation derive(product_key = MaxSurrogateKey+s_key,\n\t\tadded_date = currentTimestamp()) ~> DerivedColumns\nJoinForSurrogateKey keyGenerate(output(s_key as long),\n\tstartAt: 1L) ~> SurrogateKeyCalculation\nUpdateAlterRow sink(input(\n\t\tproduct_key as integer,\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer,\n\t\tadded_date as timestamp,\n\t\tupdated_date as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['product_id'],\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\tproduct_key,\n\t\tproduct_id = sourceStaging@product_id,\n\t\tproduct_name = sourceStaging@product_name,\n\t\tunit_price = sourceStaging@unit_price,\n\t\tproduct_desc = sourceStaging@product_desc,\n\t\teligible_promotion = sourceStaging@eligible_promotion,\n\t\tadded_date,\n\t\tupdated_date\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> UpdateSink\nDerivedColumns sink(input(\n\t\tproduct_key as integer,\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer,\n\t\tadded_date as timestamp,\n\t\tupdated_date as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\tproduct_key,\n\t\tproduct_id,\n\t\tproduct_name,\n\t\tunit_price,\n\t\tproduct_desc,\n\t\teligible_promotion,\n\t\tadded_date\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> InsertNewsink"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/TargetProductStaging')]",
-				"[concat(variables('factoryId'), '/datasets/TargetProductTable')]",
-				"[concat(variables('factoryId'), '/datasets/DS_DIM_Product_Synapse')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/df_deltalake')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "DS_User_Parquet",
-								"type": "DatasetReference"
-							},
-							"name": "SRCRawUserParquet"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "AzureDataLakeStorage",
-								"type": "LinkedServiceReference"
-							},
-							"name": "DSTStagingUserDelta"
-						}
-					],
-					"transformations": [],
-					"script": "source(output(\n\t\tregistration_dttm as timestamp,\n\t\tid as integer,\n\t\tfirst_name as string,\n\t\tlast_name as string,\n\t\temail as string,\n\t\tgender as string,\n\t\tip_address as string,\n\t\tcc as string,\n\t\tcountry as string,\n\t\tbirthdate as string,\n\t\tsalary as double,\n\t\ttitle as string,\n\t\tcomments as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet',\n\tpartitionBy('hash', 20,\n\t\tid\n\t)) ~> SRCRawUserParquet\nSRCRawUserParquet sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'delta',\n\tfileSystem: 'sinkdata',\n\tfolderPath: 'LakeHouse/Staging',\n\ttruncate: true,\n\tmergeSchema: true,\n\tvacuum: 0,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DSTStagingUserDelta"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DS_User_Parquet')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Lakehouse Pipeline')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -675,7 +677,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "df_deltalake",
+								"referenceName": "DF_DeltaLake",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
@@ -696,7 +698,7 @@
 				"lastPublishTime": "2020-11-27T01:35:10Z"
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/df_deltalake')]"
+				"[concat(variables('factoryId'), '/dataflows/DF_DeltaLake')]"
 			]
 		},
 		{
@@ -838,7 +840,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "dataflowStagingTarget",
+								"referenceName": "DF_Product_SCD1",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
@@ -906,7 +908,7 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/SourceProductTable')]",
 				"[concat(variables('factoryId'), '/datasets/TargetProductStaging')]",
-				"[concat(variables('factoryId'), '/dataflows/dataflowStagingTarget')]",
+				"[concat(variables('factoryId'), '/dataflows/DF_Product_SCD1')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage')]"
 			]
 		}
