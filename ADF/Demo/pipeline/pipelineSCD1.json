@@ -135,6 +135,13 @@
 						"referenceName": "dataflowStagingTarget",
 						"type": "DataFlowReference"
 					},
+					"staging": {
+						"linkedService": {
+							"referenceName": "AzureDataLakeStorage",
+							"type": "LinkedServiceReference"
+						},
+						"folderPath": "sinkdata/SynapseStage"
+					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
