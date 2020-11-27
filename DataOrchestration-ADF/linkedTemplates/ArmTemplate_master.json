@@ -7,9 +7,21 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "DataOrchestration-ADF"
 		},
+		"AzureBlobStorageLinkedService_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorageLinkedService'"
+		},
+		"AzureBlobStorageLinkedServiceDest_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorageLinkedServiceDest'"
+		},
 		"AzureDataLakeStorage_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage'"
+		},
+		"AzureDatabricksLinkedService_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'AzureDatabricksLinkedService'"
 		},
 		"AzureSynapseAnalyticsLinkedService_connectionString": {
 			"type": "secureString",
@@ -54,8 +66,17 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"AzureBlobStorageLinkedService_connectionString": {
+						"value": "[parameters('AzureBlobStorageLinkedService_connectionString')]"
+					},
+					"AzureBlobStorageLinkedServiceDest_connectionString": {
+						"value": "[parameters('AzureBlobStorageLinkedServiceDest_connectionString')]"
+					},
 					"AzureDataLakeStorage_accountKey": {
 						"value": "[parameters('AzureDataLakeStorage_accountKey')]"
+					},
+					"AzureDatabricksLinkedService_accessToken": {
+						"value": "[parameters('AzureDatabricksLinkedService_accessToken')]"
 					},
 					"AzureSynapseAnalyticsLinkedService_connectionString": {
 						"value": "[parameters('AzureSynapseAnalyticsLinkedService_connectionString')]"
@@ -72,6 +93,26 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "DataOrchestration-ADF_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'DataOrchestration-ADF_ArmTemplate_0')]"
+			]
 		}
 	]
 }

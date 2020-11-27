@@ -5,7 +5,16 @@
 		"factoryName": {
 			"value": "DataOrchestration-ADF"
 		},
+		"AzureBlobStorageLinkedService_connectionString": {
+			"value": ""
+		},
+		"AzureBlobStorageLinkedServiceDest_connectionString": {
+			"value": ""
+		},
 		"AzureDataLakeStorage_accountKey": {
+			"value": ""
+		},
+		"AzureDatabricksLinkedService_accessToken": {
 			"value": ""
 		},
 		"AzureSynapseAnalyticsLinkedService_connectionString": {
