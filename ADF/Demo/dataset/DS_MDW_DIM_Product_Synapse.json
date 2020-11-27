@@ -1,0 +1,16 @@
+{
+	"name": "DS_MDW_DIM_Product_Synapse",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSynapseAnalyticsLinkedService",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DIM_MDW_Product"
+		}
+	}
+}
