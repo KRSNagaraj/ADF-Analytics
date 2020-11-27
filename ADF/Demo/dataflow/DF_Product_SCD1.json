@@ -1,6 +1,7 @@
 {
-	"name": "dataflowStagingTarget",
+	"name": "DF_Product_SCD1",
 	"properties": {
+		"description": "DF_Product_SCD1",
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

@@ -17,7 +17,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_deltalake",
+						"referenceName": "DF_DeltaLake",
 						"type": "DataFlowReference"
 					},
 					"compute": {

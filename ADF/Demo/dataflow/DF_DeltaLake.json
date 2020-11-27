@@ -1,6 +1,7 @@
 {
-	"name": "df_deltalake",
+	"name": "DF_DeltaLake",
 	"properties": {
+		"description": "DF_DeltaLake",
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

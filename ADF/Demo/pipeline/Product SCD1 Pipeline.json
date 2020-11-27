@@ -133,7 +133,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflowStagingTarget",
+						"referenceName": "DF_Product_SCD1",
 						"type": "DataFlowReference"
 					},
 					"staging": {
