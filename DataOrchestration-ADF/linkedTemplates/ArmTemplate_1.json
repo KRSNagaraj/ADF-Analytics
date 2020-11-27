@@ -13,6 +13,383 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/TargetProductTable')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "TargetDBLinkedService",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "product_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "product_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "product_name",
+						"type": "varchar"
+					},
+					{
+						"name": "unit_price",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "product_desc",
+						"type": "varchar"
+					},
+					{
+						"name": "eligible_promotion",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "added_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "updated_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "product_dim"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDW_Dim_Product_Pipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "MDW_Dim_Product",
+				"activities": [
+					{
+						"name": "Copy data Source to Staging",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select * from dbo.product_table where Sync_Flag=0;",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "product_id",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"type": "Int32",
+											"physicalType": "int",
+											"ordinal": 1
+										}
+									},
+									{
+										"source": {
+											"name": "product_name",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "varchar",
+											"ordinal": 2
+										}
+									},
+									{
+										"source": {
+											"name": "unit_price",
+											"type": "Double",
+											"physicalType": "float"
+										},
+										"sink": {
+											"type": "Double",
+											"physicalType": "float",
+											"ordinal": 3
+										}
+									},
+									{
+										"source": {
+											"name": "product_desc",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"type": "String",
+											"physicalType": "varchar",
+											"ordinal": 4
+										}
+									},
+									{
+										"source": {
+											"name": "eligible_promotion",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"type": "Int32",
+											"physicalType": "int",
+											"ordinal": 5
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceProductTable",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Product_CSV_ADLS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Load Synapse Data",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy data Source to Staging",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "stage",
+									"wildcardFileName": "*"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "SqlDWSink",
+								"allowPolyBase": true,
+								"polyBaseSettings": {
+									"rejectValue": 0,
+									"rejectType": "value",
+									"useTypeDefault": true
+								},
+								"tableOption": "autoCreate"
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Product_CSV_ADLS_Src",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_MDW_DIM_Product_Synapse",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"folder": {
+					"name": "MDW"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Transformation with Azure Databricks')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Run a simple Transformation job using Azure Databricks, with a single pane of glass monitoring from ADF.\n\nIn the template, we check for source dataset availability. Once it is available we copy it into a blob storage for staging using a Copy activity. The same storage is accessed from Databricks clusters while processing the data (Transformation). The output is stored in the same storage under 'output' folder. Various notebook properties are referenced as expressions using pipeline parameters, which lets you configure more generic and reusable pipelines.",
+				"activities": [
+					{
+						"name": "Load Blob",
+						"description": "Copy activity copies the actual files/ dataset to be processed by Databricks into a staging store. This storage should be accessible by the Azure Databricks cluster referenced in the next activity. ",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"dataIntegrationUnits": 0
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceFilesDataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DestinationFilesDataset",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Transformation",
+						"description": "Databricks Notebook activity does the processing of the data copied in the previous step (copy activity).  Please ensure you have added the databricks notebook (<a href='https://adflabstaging1.blob.core.windows.net/share/Transformations.html' target='_blank'>https://adflabstaging1.blob.core.windows.net/share/Transformations.html</a>) in the databricks work-space and referenced it in the notebook activity in ADF.",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Load Blob",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/ADF-ADB/Transformations",
+							"baseParameters": {
+								"input": {
+									"value": "@pipeline().parameters.inputPath",
+									"type": "Expression"
+								},
+								"output": {
+									"value": "@pipeline().parameters.outputPath",
+									"type": "Expression"
+								},
+								"filename": {
+									"value": "@pipeline().parameters.fileName",
+									"type": "Expression"
+								},
+								"pipelineRunId": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureDatabricksLinkedService",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"parameters": {
+					"inputPath": {
+						"type": "String",
+						"defaultValue": "/staged_sink"
+					},
+					"outputPath": {
+						"type": "String",
+						"defaultValue": "/processed_sink"
+					},
+					"fileName": {
+						"type": "String",
+						"defaultValue": "Product.csv"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_DeltaLake')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -120,7 +497,9 @@
 					"script": "source(output(\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> sourceStaging\nsource(output(\n\t\tproduct_key as integer,\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer,\n\t\tadded_date as timestamp,\n\t\tupdated_date as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> sourceTarget\nsource(output(\n\t\tMaxSurrogateKey as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: 'select isNull(max(product_key),0) as MaxSurrogateKey from dbo.product_dim',\n\tformat: 'query') ~> MaxSurrogateKey\nsourceStaging, sourceTarget exists(sourceStaging@product_id == sourceTarget@product_id,\n\tnegate:false,\n\tbroadcast: 'auto')~> ExistsForUpdate\nExistsForUpdate, sourceTarget lookup(sourceStaging@product_id == sourceTarget@product_id,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> ProductKeyAddedDateLookup\nProductKeyAddedDateLookup derive(updated_date = currentTimestamp()) ~> UpdatedDateDerivedColumn\nUpdatedDateDerivedColumn alterRow(updateIf(true())) ~> UpdateAlterRow\nsourceStaging, sourceTarget exists(sourceStaging@product_id == sourceTarget@product_id,\n\tnegate:true,\n\tbroadcast: 'auto')~> InsertNewRecordExists\nInsertNewRecordExists, MaxSurrogateKey join(true(),\n\tjoinType:'cross',\n\tbroadcast: 'auto')~> JoinForSurrogateKey\nSurrogateKeyCalculation derive(product_key = MaxSurrogateKey+s_key,\n\t\tadded_date = currentTimestamp()) ~> DerivedColumns\nJoinForSurrogateKey keyGenerate(output(s_key as long),\n\tstartAt: 1L) ~> SurrogateKeyCalculation\nUpdateAlterRow sink(input(\n\t\tproduct_key as integer,\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer,\n\t\tadded_date as timestamp,\n\t\tupdated_date as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['product_id'],\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\tproduct_key,\n\t\tproduct_id = sourceStaging@product_id,\n\t\tproduct_name = sourceStaging@product_name,\n\t\tunit_price = sourceStaging@unit_price,\n\t\tproduct_desc = sourceStaging@product_desc,\n\t\teligible_promotion = sourceStaging@eligible_promotion,\n\t\tadded_date,\n\t\tupdated_date\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> UpdateSink\nDerivedColumns sink(input(\n\t\tproduct_key as integer,\n\t\tproduct_id as integer,\n\t\tproduct_name as string,\n\t\tunit_price as double,\n\t\tproduct_desc as string,\n\t\teligible_promotion as integer,\n\t\tadded_date as timestamp,\n\t\tupdated_date as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\tproduct_key,\n\t\tproduct_id,\n\t\tproduct_name,\n\t\tunit_price,\n\t\tproduct_desc,\n\t\teligible_promotion,\n\t\tadded_date\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> InsertNewsink"
 				}
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/TargetProductTable')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/DF_Product_SCD2')]",
