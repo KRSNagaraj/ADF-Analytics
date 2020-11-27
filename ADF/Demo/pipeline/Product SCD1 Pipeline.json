@@ -1,6 +1,7 @@
 {
-	"name": "pipelineSCD1",
+	"name": "Product SCD1 Pipeline",
 	"properties": {
+		"description": "Product SCD1 Pipeline",
 		"activities": [
 			{
 				"name": "Copy data Source to Staging",
