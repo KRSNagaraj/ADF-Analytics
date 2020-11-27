@@ -112,7 +112,7 @@
 				]
 			},
 			{
-				"name": "dataflow1",
+				"name": "scd1 dataflow",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
@@ -138,7 +138,8 @@
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
-					}
+					},
+					"traceLevel": "Fine"
 				}
 			},
 			{
@@ -146,7 +147,7 @@
 				"type": "Lookup",
 				"dependsOn": [
 					{
-						"activity": "dataflow1",
+						"activity": "scd1 dataflow",
 						"dependencyConditions": [
 							"Succeeded"
 						]
