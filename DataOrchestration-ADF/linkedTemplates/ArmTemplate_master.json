@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage'"
 		},
+		"AzureSynapseAnalyticsLinkedService_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSynapseAnalyticsLinkedService'"
+		},
 		"SourceDBLinkedService_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'SourceDBLinkedService'"
@@ -52,6 +56,9 @@
 					},
 					"AzureDataLakeStorage_accountKey": {
 						"value": "[parameters('AzureDataLakeStorage_accountKey')]"
+					},
+					"AzureSynapseAnalyticsLinkedService_connectionString": {
+						"value": "[parameters('AzureSynapseAnalyticsLinkedService_connectionString')]"
 					},
 					"SourceDBLinkedService_connectionString": {
 						"value": "[parameters('SourceDBLinkedService_connectionString')]"

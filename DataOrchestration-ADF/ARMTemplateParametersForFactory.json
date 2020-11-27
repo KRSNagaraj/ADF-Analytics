@@ -8,6 +8,9 @@
 		"AzureDataLakeStorage_accountKey": {
 			"value": ""
 		},
+		"AzureSynapseAnalyticsLinkedService_connectionString": {
+			"value": ""
+		},
 		"SourceDBLinkedService_connectionString": {
 			"value": ""
 		},
