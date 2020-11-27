@@ -113,7 +113,7 @@
 				]
 			},
 			{
-				"name": "scd1 dataflow",
+				"name": "scd2 dataflow",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
@@ -133,7 +133,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "DF_Product_SCD1",
+						"referenceName": "DF_Product_SCD2",
 						"type": "DataFlowReference"
 					},
 					"staging": {
@@ -155,7 +155,7 @@
 				"type": "Lookup",
 				"dependsOn": [
 					{
-						"activity": "scd1 dataflow",
+						"activity": "scd2 dataflow",
 						"dependencyConditions": [
 							"Succeeded"
 						]
