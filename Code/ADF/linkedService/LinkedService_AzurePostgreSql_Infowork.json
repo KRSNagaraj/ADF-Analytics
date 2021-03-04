@@ -1,0 +1,13 @@
+{
+	"name": "LinkedService_AzurePostgreSql_Infowork",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "iw-td-shared-db.postgres.database.azure.com\n5432\niw_user@iw-td-shared-db\n1nQ9tZ8N*XRu\nenterprise_dw",
+		"annotations": [],
+		"type": "AzurePostgreSql",
+		"typeProperties": {
+			"connectionString": "host=iw-td-shared-db.postgres.database.azure.com;port=5432;database=enterprise_dw;uid=iw_user@iw-td-shared-db;encryptionmethod=1;validateservercertificate=0",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkFERi1BTkFMWVRJQ1MtMDFfNzhkYTcwMzctMTBhZS00NDA4LTkzOWMtMTgzYzRmMjkwZWFjIg0KfQ=="
+		}
+	}
+}
