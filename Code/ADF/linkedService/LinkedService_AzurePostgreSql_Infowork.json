@@ -2,7 +2,7 @@
 	"name": "LinkedService_AzurePostgreSql_Infowork",
 	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
-		"description": "iw-td-shared-db.postgres.database.azure.com\n5432\niw_user@iw-td-shared-db\n1nQ9tZ8N*XRu\nenterprise_dw",
+		"description": "iw-td-shared-db.postgres.database.azure.com\n5432\niw_user@iw-td-shared-db\n1nQ9tZ8N*XRu\nenterprise_dw\npublic",
 		"annotations": [],
 		"type": "AzurePostgreSql",
 		"typeProperties": {
